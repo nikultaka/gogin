@@ -39,14 +39,14 @@ func NewOAuth2Module(db *clients.Database, redis *clients.RedisClient, cfg *conf
 // RegisterRoutes registers OAuth2 routes
 func (m *OAuth2Module) RegisterRoutes(router *gin.RouterGroup) {
 	oauth := router.Group("/oauth")
+	authMiddleware := middleware.NewAuthMiddleware(m.jwtUtil, m.redisHelper)
 	{
-		// Public endpoints
-		oauth.POST("/authorize", m.authorize)
-		oauth.POST("/token", m.token)
-
-		// Protected endpoints
-		authMiddleware := middleware.NewAuthMiddleware(m.jwtUtil, m.redisHelper)
+		// Protected endpoints (require user authentication)
+		oauth.POST("/authorize", authMiddleware.RequireAuth(), m.authorize)
 		oauth.POST("/revoke", authMiddleware.RequireAuth(), m.revoke)
 		oauth.POST("/introspect", authMiddleware.RequireAuth(), m.introspect)
+
+		// Public endpoint (no authentication required)
+		oauth.POST("/token", m.token)
 	}
 }

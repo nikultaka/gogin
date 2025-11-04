@@ -897,6 +897,11 @@ const docTemplate = `{
         },
         "/oauth/authorize": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Request authorization code with PKCE support",
                 "consumes": [
                     "application/json"
@@ -1137,15 +1142,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Entity type",
-                        "name": "entity_type",
+                        "description": "Resource type",
+                        "name": "resource_type",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Entity ID",
-                        "name": "entity_id",
+                        "description": "Resource ID",
+                        "name": "resource_id",
                         "in": "query",
                         "required": true
                     },
@@ -2779,25 +2784,25 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "entity_id",
-                "entity_type",
                 "rating",
+                "resource_id",
+                "resource_type",
                 "title"
             ],
             "properties": {
                 "content": {
                     "type": "string"
                 },
-                "entity_id": {
-                    "type": "string"
-                },
-                "entity_type": {
-                    "type": "string"
-                },
                 "rating": {
                     "type": "integer",
                     "maximum": 5,
                     "minimum": 1
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -2813,17 +2818,17 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "entity_id": {
-                    "type": "string"
-                },
-                "entity_type": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
                 "rating": {
                     "type": "integer"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"

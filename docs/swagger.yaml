@@ -325,21 +325,21 @@ definitions:
     properties:
       content:
         type: string
-      entity_id:
-        type: string
-      entity_type:
-        type: string
       rating:
         maximum: 5
         minimum: 1
         type: integer
+      resource_id:
+        type: string
+      resource_type:
+        type: string
       title:
         type: string
     required:
     - content
-    - entity_id
-    - entity_type
     - rating
+    - resource_id
+    - resource_type
     - title
     type: object
   reviews.ReviewResponse:
@@ -348,14 +348,14 @@ definitions:
         type: string
       created_at:
         type: string
-      entity_id:
-        type: string
-      entity_type:
-        type: string
       id:
         type: string
       rating:
         type: integer
+      resource_id:
+        type: string
+      resource_type:
+        type: string
       status:
         type: string
       title:
@@ -1057,6 +1057,8 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: OAuth2 Authorization
       tags:
       - OAuth2
@@ -1168,14 +1170,14 @@ paths:
   /reviews:
     get:
       parameters:
-      - description: Entity type
+      - description: Resource type
         in: query
-        name: entity_type
+        name: resource_type
         required: true
         type: string
-      - description: Entity ID
+      - description: Resource ID
         in: query
-        name: entity_id
+        name: resource_id
         required: true
         type: string
       - default: 1

@@ -18,6 +18,7 @@ import (
 // @Success 200 {object} response.Response{data=AuthorizeResponse}
 // @Failure 400 {object} response.Response
 // @Failure 401 {object} response.Response
+// @Security BearerAuth
 // @Router /oauth/authorize [post]
 func (m *OAuth2Module) authorize(c *gin.Context) {
 	var req AuthorizeRequest
