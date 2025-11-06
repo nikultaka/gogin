@@ -81,7 +81,7 @@ func (s *NotificationsService) ListNotifications(userID string, page, limit int)
 	// Get total count
 	var total, unread int
 	err := s.db.QueryRow(`
-		SELECT COUNT(*), SUM(CASE WHEN is_read = FALSE THEN 1 ELSE 0 END)
+		SELECT COUNT(*), COALESCE(SUM(CASE WHEN is_read = FALSE THEN 1 ELSE 0 END), 0)
 		FROM notifications
 		WHERE user_id = $1
 	`, userID).Scan(&total, &unread)

@@ -15,6 +15,8 @@ import (
 	"gogin/internal/modules/notifications"
 	"gogin/internal/modules/oauth2"
 	"gogin/internal/modules/reviews"
+	"gogin/internal/modules/settings"
+	"gogin/internal/modules/tickets"
 	"gogin/internal/modules/users"
 	"gogin/internal/response"
 	"gogin/internal/workers"
@@ -65,6 +67,12 @@ import (
 
 // @tag.name Reviews
 // @tag.description Review and rating system
+
+// @tag.name Settings
+// @tag.description System and user settings management
+
+// @tag.name Tickets
+// @tag.description Support ticket management
 
 func main() {
 	// Load configuration
@@ -177,6 +185,16 @@ func main() {
 	reviewsModule := reviews.NewReviewsModule(db, redis, cfg)
 	reviewsModule.RegisterRoutes(v1)
 	log.Println("✓ Reviews module registered")
+
+	// Settings module
+	settingsModule := settings.NewSettingsModule(db, redis, cfg)
+	settingsModule.RegisterRoutes(v1)
+	log.Println("✓ Settings module registered")
+
+	// Tickets module
+	ticketsModule := tickets.NewTicketsModule(db, redis, cfg)
+	ticketsModule.RegisterRoutes(v1)
+	log.Println("✓ Tickets module registered")
 
 	// Apply rate limiting after authentication routes
 	rateLimiter := middleware.NewRateLimiter(redis, cfg.App.RateLimitRPS, 60)
