@@ -37,7 +37,7 @@ logs/
 
 # Uploads
 uploads/
-storage/
+#storage/
 
 # Node modules (if any frontend tools)
 node_modules/
@@ -75,7 +75,7 @@ dump.rdb
 docs/_build/
 
 #api test example
-Makefile
+#Makefile
 open-claude.sh
 package-lock.json
 package.json
