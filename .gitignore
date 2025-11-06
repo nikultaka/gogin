@@ -75,10 +75,6 @@ dump.rdb
 docs/_build/
 
 #api test example
-API_TEST_EXAMPLES.md
-AUTHENTICATION_GUIDE.md
-COMPLETED_FEATURES.md
-IMPLEMENTATION_COMPLETE.md
 Makefile
 open-claude.sh
 package-lock.json

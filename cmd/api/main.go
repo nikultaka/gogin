@@ -16,6 +16,7 @@ import (
 	"gogin/internal/modules/oauth2"
 	"gogin/internal/modules/reviews"
 	"gogin/internal/modules/settings"
+	"gogin/internal/modules/storage"
 	"gogin/internal/modules/tickets"
 	"gogin/internal/modules/users"
 	"gogin/internal/response"
@@ -73,6 +74,9 @@ import (
 
 // @tag.name Tickets
 // @tag.description Support ticket management
+
+// @tag.name Storage
+// @tag.description File storage and management (upload/download public and private files)
 
 func main() {
 	// Load configuration
@@ -195,6 +199,11 @@ func main() {
 	ticketsModule := tickets.NewTicketsModule(db, redis, cfg)
 	ticketsModule.RegisterRoutes(v1)
 	log.Println("✓ Tickets module registered")
+
+	// Storage module
+	storageModule := storage.NewStorageModule(db, redis, cfg)
+	storageModule.RegisterRoutes(v1)
+	log.Println("✓ Storage module registered")
 
 	// Apply rate limiting after authentication routes
 	rateLimiter := middleware.NewRateLimiter(redis, cfg.App.RateLimitRPS, 60)

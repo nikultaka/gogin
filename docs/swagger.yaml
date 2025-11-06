@@ -476,6 +476,65 @@ definitions:
     - type
     - value
     type: object
+  storage.FileResponse:
+    properties:
+      created_at:
+        type: string
+      download_url:
+        type: string
+      file_name:
+        type: string
+      id:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      size:
+        type: integer
+      storage_type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      visibility:
+        type: string
+    type: object
+  storage.FileUploadResponse:
+    properties:
+      file:
+        $ref: '#/definitions/storage.FileResponse'
+    type: object
+  storage.FilesListResponse:
+    properties:
+      files:
+        items:
+          $ref: '#/definitions/storage.FileResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  storage.UpdateFileRequest:
+    properties:
+      metadata:
+        description: Optional JSON metadata
+        type: string
+      visibility:
+        enum:
+        - public
+        - private
+        type: string
+    type: object
   tickets.AssignTicketRequest:
     properties:
       assigned_to:
@@ -1962,6 +2021,237 @@ paths:
       summary: System status
       tags:
       - Core
+  /storage/files:
+    get:
+      description: Get a paginated list of files (public files + user's private files
+        if authenticated)
+      parameters:
+      - description: Filter by visibility (public or private)
+        in: query
+        name: visibility
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.FilesListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List files
+      tags:
+      - Storage
+  /storage/files/{id}:
+    delete:
+      description: Soft delete a file by ID
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Delete a file
+      tags:
+      - Storage
+    get:
+      description: Get metadata for a specific file by ID
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    file:
+                      $ref: '#/definitions/storage.FileResponse'
+                  type: object
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get file metadata
+      tags:
+      - Storage
+    put:
+      consumes:
+      - application/json
+      description: Update file visibility and metadata
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/storage.UpdateFileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    file:
+                      $ref: '#/definitions/storage.FileResponse'
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Update file metadata
+      tags:
+      - Storage
+  /storage/files/{id}/download:
+    get:
+      description: Download a file by ID
+      parameters:
+      - description: File ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: file
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Download a file
+      tags:
+      - Storage
+  /storage/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a file to storage (public or private)
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: File visibility (public or private)
+        in: formData
+        name: visibility
+        required: true
+        type: string
+      - description: Optional JSON metadata
+        in: formData
+        name: metadata
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/storage.FileUploadResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Upload a file
+      tags:
+      - Storage
   /tickets:
     get:
       description: List all support tickets (admin only)
@@ -2950,3 +3240,5 @@ tags:
   name: Settings
 - description: Support ticket management
   name: Tickets
+- description: File storage and management (upload/download public and private files)
+  name: Storage
